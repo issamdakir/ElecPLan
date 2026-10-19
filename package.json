@@ -1,0 +1,57 @@
+{
+  "name": "elecplan",
+  "productName": "ElecPlan",
+  "version": "0.1.0",
+  "description": "Plans d'architecte et plans électriques, avec assistance IA via Claude Code",
+  "main": "main.js",
+  "author": {
+    "name": "Issam",
+    "email": "idakservice@gmail.com"
+  },
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --linux AppImage deb"
+  },
+  "build": {
+    "appId": "ma.issam.elecplan",
+    "productName": "elecplan",
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "node_modules/pdfjs-dist/legacy/build/**/*"
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Graphics",
+      "maintainer": "Issam",
+      "executableName": "elecplan",
+      "artifactName": "ElecPlan-${version}.${ext}",
+      "desktop": {
+        "Name": "ElecPlan",
+        "StartupWMClass": "ElecPlan"
+      }
+    },
+    "deb": {
+      "depends": [],
+      "afterInstall": "build/linux/after-install.tpl",
+      "afterRemove": "build/linux/after-remove.tpl",
+      "artifactName": "${name}_${version}_${arch}.${ext}"
+    },
+    "publish": null,
+    "afterPack": "build/fuses.js"
+  },
+  "dependencies": {
+    "pdfjs-dist": "4.10.38"
+  },
+  "devDependencies": {
+    "@electron/fuses": "1.8.0",
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
+  },
+  "homepage": "https://claude.ai"
+}

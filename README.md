@@ -56,7 +56,8 @@ npm run dist       # construit dist/*.AppImage et dist/*.deb
 ```
 
 Fichiers : `main.js` (fenêtre, fichiers, PDF, file des tâches Claude Code), `preload.js` (pont sécurisé),
-`src/app.js` (éditeur), `src/ai.js` (assistant), `src/model.js` (données, géométrie), `src/symbols.js` (symboles), `src/pdfbg.js` (lecture PDF).
+`src/app.js` (éditeur), `src/ai.js` (assistant), `src/model.js` (données, géométrie), `src/symbols.js` (symboles), `src/pdfbg.js` (lecture PDF),
+`src/fonts/` (Inter et JetBrains Mono, licence OFL, embarquées dans l'application).
 
 ## Prévu ensuite
 

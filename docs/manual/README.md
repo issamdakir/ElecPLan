@@ -9,7 +9,7 @@ google-chrome --headless=new --no-pdf-header-footer \
   --print-to-pdf=../ElecPlan_Manuel.pdf "file://$PWD/manual.html"
 ```
 
-Polices requises (Google Fonts, licence OFL) : Barlow, Barlow Condensed, JetBrains Mono.
-Sans elles, Chrome utilise des polices de remplacement et la mise en page change.
+Les polices (Barlow, Barlow Condensed, JetBrains Mono) sont dans `fonts/`, avec leur licence OFL :
+rien à installer.
 
 Captures : `s_*.png` = écran entier (fenêtre 1500 × 920), `c_*.png` = détails du panneau.

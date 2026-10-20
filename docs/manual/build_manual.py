@@ -224,6 +224,11 @@ toc_rows = ''.join(f"<div class='tn'>{E(s.split(' · ')[0])}</div><div class='tt
 toc = f"""<div class='pg'><div class='top'><div><div class='sec'>Sommaire</div><h1>Contenu du manuel</h1></div><div class='brand'>Elec<b>Plan</b> · manuel</div></div><div class='toc'>{toc_rows}</div><div class='foot'><span>ElecPlan 0.1 · Manuel utilisateur</span><span class='pn'></span></div></div>"""
 
 CSS = """
+@font-face{font-family:Barlow;src:url(fonts/Barlow-Regular.ttf);font-weight:400}
+@font-face{font-family:Barlow;src:url(fonts/Barlow-SemiBold.ttf);font-weight:600}
+@font-face{font-family:Barlow;src:url(fonts/Barlow-Bold.ttf);font-weight:700}
+@font-face{font-family:"Barlow Condensed";src:url(fonts/BarlowCondensed-Bold.ttf);font-weight:700}
+@font-face{font-family:"JetBrains Mono";src:url(fonts/JetBrainsMono-Variable.ttf);font-weight:100 800}
 @page{size:A4;margin:0}
 *{box-sizing:border-box}
 body{margin:0;font-family:Barlow,sans-serif;color:#17201d;font-size:10.6pt;line-height:1.42;counter-reset:pg}

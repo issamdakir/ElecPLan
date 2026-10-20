@@ -1,3 +1,5 @@
+@font-face{font-family:Inter;src:url(fonts/Inter-Variable.ttf) format("truetype");font-weight:100 900;font-style:normal}
+@font-face{font-family:"JetBrains Mono";src:url(fonts/JetBrainsMono-Variable.ttf) format("truetype");font-weight:100 800;font-style:normal}
 :root{
   --bg:#eef1ef; --surface:#ffffff; --sunk:#f6f8f7; --fg:#17201d; --muted:#5d6b66; --line:#d5dcd8; --line2:#b9c3be;
   --accent:#0f6b5a; --accent-soft:#e1f0ec; --sel:#e8572a; --warn:#9a5b00; --warn-soft:#fbf0dc; --danger:#b42318;

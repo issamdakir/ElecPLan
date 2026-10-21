@@ -9,6 +9,17 @@ Application de bureau Linux pour dessiner des plans d'architecte et des plans é
 
 L'application fonctionne entièrement **hors ligne** pour le dessin, les fichiers et les exports.
 
+## Langue / Language
+
+Interface en **français** ou en **anglais**. Au premier lancement, la langue suit celle du système ; on la change à tout moment
+avec le sélecteur FR / EN en haut à droite ou le menu Affichage → Langue (sans redémarrer, le travail en cours est conservé).
+Les exports (PDF, CSV) et les rapports de l'assistant IA suivent la langue choisie.
+
+Manuel utilisateur : `docs/ElecPlan_Manual.pdf` (anglais) et `docs/ElecPlan_Manuel.pdf` (français), source Markdown dans `docs/manual/` (`manual.en.md`, `manual.fr.md`) ; `npm run manual` construit le PDF.
+
+*The interface is available in French and English. It follows the system language on first launch; switch it anytime with the
+FR / EN selector (top right) or View → Language. Exports and AI reports follow the chosen language. User manual: `docs/ElecPlan_Manual.pdf` (English) and `docs/ElecPlan_Manuel.pdf` (French).*
+
 ## Assistant IA (facultatif)
 
 Les tâches IA sont exécutées en arrière-plan par Claude Code, avec le compte Claude connecté sur ce PC
@@ -56,6 +67,7 @@ npm run dist       # construit dist/*.AppImage et dist/*.deb
 ```
 
 Fichiers : `main.js` (fenêtre, fichiers, PDF, file des tâches Claude Code), `preload.js` (pont sécurisé),
+`src/i18n.js` (traductions fr/en : les clés sont le texte français, ajouter la version anglaise de toute nouvelle chaîne),
 `src/app.js` (éditeur), `src/ai.js` (assistant), `src/model.js` (données, géométrie), `src/symbols.js` (symboles), `src/pdfbg.js` (lecture PDF),
 `src/fonts/` (Inter et JetBrains Mono, licence OFL, embarquées dans l'application).
 

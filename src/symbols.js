@@ -1,4 +1,5 @@
 // Catalogue des appareils et symboles (unités : cm, symbole centré sur 0,0, taille ~30 cm à l'échelle 1)
+// label et group sont en français (clés de traduction) : les afficher avec I18N.t().
 const DEVICE_TYPES = [
   { type: 'prise', label: 'Prise', prefix: 'P', group: 'Prises' },
   { type: 'prise_ip', label: 'Prise IP44', prefix: 'P', group: 'Prises' },

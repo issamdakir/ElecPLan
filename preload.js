@@ -1,5 +1,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('api', {
+  lang: ipcRenderer.sendSync('i18n:get'),
+  setLang: (l) => ipcRenderer.invoke('i18n:set', l),
+  onLang: (cb) => ipcRenderer.on('lang', (_e, l) => cb(l)),
   openProject: () => ipcRenderer.invoke('file:open'),
   saveProject: (o) => ipcRenderer.invoke('file:save', o),
   pickImage: () => ipcRenderer.invoke('file:image'),
@@ -15,5 +18,9 @@ contextBridge.exposeInMainWorld('api', {
   aiList: () => ipcRenderer.invoke('ai:list'),
   aiResult: (id) => ipcRenderer.invoke('ai:readResult', id),
   onAiUpdate: (cb) => ipcRenderer.on('ai:update', (_e, j) => cb(j)),
+  setDirty: (o) => ipcRenderer.send('app:dirty', o),
+  onQuitRequest: (cb) => ipcRenderer.on('app:quit-request', (_e, a) => cb(a)),
+  quitNow: () => ipcRenderer.send('app:quit-now'),
+  onOpenFile: (cb) => ipcRenderer.on('open-file', (_e, r) => cb(r)),
   onMenu: (cb) => ipcRenderer.on('menu', (_e, m) => cb(m))
 });

@@ -5,60 +5,64 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; worker-src 'self' blob:">
 <title>ElecPlan</title>
+<link rel="icon" href="icon.svg">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <header class="top">
   <div class="brand"><b>Elec</b>Plan</div>
-  <input id="projName" class="projname" value="Nouveau projet" aria-label="Nom du projet">
+  <input id="projName" class="projname" value="Nouveau projet" aria-label="Nom du projet" data-i18n-aria>
   <div class="filebtns">
-    <button id="bNew" title="Nouveau (Ctrl+N)">Nouveau</button>
-    <button id="bOpen" title="Ouvrir (Ctrl+O)">Ouvrir</button>
-    <button id="bSave" title="Enregistrer (Ctrl+S)">Enregistrer</button>
-    <button id="bBg" title="Importer un fond de plan (image ou PDF)">Fond de plan</button>
-    <button id="bPdf" class="primary" title="Exporter en PDF A3 (Ctrl+P)">Exporter PDF</button>
+    <button id="bNew" title="Nouveau (Ctrl+N)" data-i18n data-i18n-title>Nouveau</button>
+    <button id="bOpen" title="Ouvrir (Ctrl+O)" data-i18n data-i18n-title>Ouvrir</button>
+    <button id="bSave" title="Enregistrer (Ctrl+S)" data-i18n data-i18n-title>Enregistrer</button>
+    <button id="bBg" title="Importer un fond de plan (image ou PDF)" data-i18n data-i18n-title>Fond de plan</button>
+    <button id="bPdf" class="primary" title="Exporter en PDF A3 (Ctrl+P)" data-i18n data-i18n-title>Exporter PDF</button>
   </div>
-  <div class="levels" id="levels" role="tablist" aria-label="Niveaux"></div>
-  <span class="dirty" id="dirty" hidden>● non enregistré</span>
+  <div class="levels" id="levels" role="tablist" aria-label="Niveaux" data-i18n-aria></div>
+  <span class="dirty" id="dirty" data-i18n hidden>● non enregistré</span>
+  <select id="optLang" class="langsel" aria-label="Langue" data-i18n-aria><option value="fr">FR</option><option value="en">EN</option></select>
+  <button id="bPrefs" class="iconbtn" title="Préférences (Ctrl+,)" aria-label="Préférences" data-i18n-title data-i18n-aria>⚙</button>
 </header>
 
 <div class="main">
-  <nav class="tools" id="tools" aria-label="Outils">
-    <div class="tgroup"><span>Vue</span>
-      <button data-tool="select" title="Sélection / déplacer (V)"><i>⌖</i>Sélection</button>
-      <button data-tool="pan" title="Main : déplacer la vue (H, ou clic molette)"><i>✋</i>Vue</button>
+  <nav class="tools" id="tools" aria-label="Outils" data-i18n-aria>
+    <div class="tgroup"><span data-i18n>Vue</span>
+      <button data-tool="select" title="Sélection / déplacer (V)" data-i18n-title><i>⌖</i><span data-i18n>Sélection</span></button>
+      <button data-tool="pan" title="Main : déplacer la vue (ou clic molette partout)" data-i18n-title><i>✋</i><span data-i18n>Vue</span></button>
     </div>
-    <div class="tgroup"><span>Architecture</span>
-      <button data-tool="wall" title="Mur : clics successifs, double-clic ou Entrée pour finir (W)"><i>▬</i>Mur</button>
-      <button data-tool="room" title="Pièce : clics sur les angles, double-clic pour fermer (R)"><i>▢</i>Pièce</button>
-      <button data-tool="door" title="Porte : clic pour placer, molette ou R pour tourner (D)"><i>◜</i>Porte</button>
-      <button data-tool="window" title="Fenêtre : clic pour placer (F)"><i>≡</i>Fenêtre</button>
-      <button data-tool="dim" title="Cote : 2 clics (C)"><i>↔</i>Cote</button>
-      <button data-tool="text" title="Texte (T)"><i>A</i>Texte</button>
+    <div class="tgroup"><span data-i18n>Architecture</span>
+      <button data-tool="wall" title="Mur : clics successifs, double-clic ou Entrée pour finir (W)" data-i18n-title><i>▬</i><span data-i18n>Mur</span></button>
+      <button data-tool="room" title="Espace : glisser d'un angle à l'autre (R)" data-i18n-title><i>▢</i><span data-i18n>Espace</span></button>
+      <button data-tool="door" title="Porte : clic pour placer, molette ou R pour tourner (D)" data-i18n-title><i>◜</i><span data-i18n>Porte</span></button>
+      <button data-tool="window" title="Fenêtre : clic pour placer (F)" data-i18n-title><i>≡</i><span data-i18n>Fenêtre</span></button>
+      <button data-tool="dim" title="Cote : 2 clics (C)" data-i18n-title><i>↔</i><span data-i18n>Cote</span></button>
+      <button data-tool="text" title="Texte (Maj+Espace puis T)" data-i18n-title><i>A</i><span data-i18n>Texte</span></button>
     </div>
-    <div class="tgroup"><span>Électricité</span>
-      <button data-tool="device" title="Appareil : choisir le type dans le panneau, puis cliquer (E)"><i>⊗</i>Appareil</button>
-      <button data-tool="gaine" title="Gaine : clic sur l'appareil de départ, coudes, clic sur l'arrivée (G)"><i>⤳</i>Gaine</button>
+    <div class="tgroup"><span data-i18n>Électricité</span>
+      <button data-tool="device" title="Appareil : choisir le type dans le panneau, puis cliquer (E)" data-i18n-title><i>⊗</i><span data-i18n>Appareil</span></button>
+      <button data-tool="gaine" title="Gaine : clic sur l'appareil de départ, coudes, clic sur l'arrivée (G)" data-i18n-title><i>⤳</i><span data-i18n>Gaine</span></button>
     </div>
-    <div class="tgroup"><span>Fond</span>
-      <button data-tool="calib" title="Mettre le fond à l'échelle : 2 clics + distance réelle"><i>⟷</i>Échelle</button>
+    <div class="tgroup"><span data-i18n>Fond</span>
+      <button data-tool="calib" title="Mettre le fond à l'échelle : 2 clics + distance réelle" data-i18n-title><i>⟷</i><span data-i18n>Échelle</span></button>
     </div>
   </nav>
 
   <section class="canvaswrap" id="canvaswrap">
-    <svg id="cv" xmlns="http://www.w3.org/2000/svg" aria-label="Plan"></svg>
+    <svg id="cv" xmlns="http://www.w3.org/2000/svg" aria-label="Plan" data-i18n-aria></svg>
+    <svg id="rulerTop" class="ruler r-top" aria-hidden="true"></svg><svg id="rulerLeft" class="ruler r-left" aria-hidden="true"></svg><div class="ruler-corner">m</div>
     <div class="hint" id="hint"></div>
     <div class="zoombox">
-      <button id="zIn" title="Zoomer">+</button><button id="zOut" title="Dézoomer">−</button><button id="zFit" title="Tout voir">⤢</button>
+      <button id="zIn" title="Zoomer" data-i18n-title>+</button><button id="zOut" title="Dézoomer" data-i18n-title>−</button><button id="zFit" title="Tout voir" data-i18n-title>⤢</button>
     </div>
   </section>
 
   <aside class="panel">
     <div class="tabs" role="tablist">
-      <button role="tab" data-tab="props" aria-selected="true">Propriétés</button>
-      <button role="tab" data-tab="lib" aria-selected="false">Appareils</button>
-      <button role="tab" data-tab="nomen" aria-selected="false">Nomenclature</button>
-      <button role="tab" data-tab="ai" aria-selected="false">Assistant IA</button>
+      <button role="tab" data-tab="props" aria-selected="true" data-i18n>Propriétés</button>
+      <button role="tab" data-tab="lib" aria-selected="false" data-i18n>Appareils</button>
+      <button role="tab" data-tab="nomen" aria-selected="false" data-i18n>Nomenclature</button>
+      <button role="tab" data-tab="ai" aria-selected="false" data-i18n>Assistant IA</button>
     </div>
     <div class="tabbody" id="tab-props"></div>
     <div class="tabbody" id="tab-lib" hidden></div>
@@ -70,21 +74,23 @@
 <footer class="status">
   <span id="sCoord">x 0,00 · y 0,00 m</span>
   <span id="sZoom">100 %</span>
-  <label><input type="checkbox" id="optSnap" checked> Grille</label>
-  <label>pas <select id="optGrid"><option value="5">5 cm</option><option value="10" selected>10 cm</option><option value="25">25 cm</option><option value="50">50 cm</option></select></label>
-  <label><input type="checkbox" id="optOrtho" checked> Angles 15° (Maj = libre)</label>
-  <label>mur <select id="optThick"><option value="10">10 cm</option><option value="15">15 cm</option><option value="20" selected>20 cm</option><option value="25">25 cm</option><option value="30">30 cm</option></select></label>
+  <span id="sGrid"></span>
+  <label><input type="checkbox" id="optSnap" checked> <span data-i18n>Grille</span></label>
+  <label><span data-i18n>pas</span> <select id="optGrid"><option value="5">5 cm</option><option value="10" selected>10 cm</option><option value="25">25 cm</option><option value="50">50 cm</option></select></label>
+  <label><input type="checkbox" id="optOrtho" checked> <span data-i18n>Angles 15° (Maj = libre)</span></label>
+  <label><span data-i18n>mur</span> <select id="optThick"><option value="10">10 cm</option><option value="15">15 cm</option><option value="20" selected>20 cm</option><option value="25">25 cm</option><option value="30">30 cm</option></select></label>
   <span class="layersel">
-    <label><input type="checkbox" data-layer="bg" checked> Fond</label>
-    <label><input type="checkbox" data-layer="archi" checked> Archi</label>
-    <label><input type="checkbox" data-layer="elec" checked> Électrique</label>
-    <label><input type="checkbox" data-layer="gaines" checked> Gaines</label>
-    <label><input type="checkbox" data-layer="dims" checked> Cotes</label>
+    <label><input type="checkbox" data-layer="bg" checked> <span data-i18n>Fond</span></label>
+    <label><input type="checkbox" data-layer="archi" checked> <span data-i18n>Archi</span></label>
+    <label><input type="checkbox" data-layer="elec" checked> <span data-i18n>Électrique</span></label>
+    <label><input type="checkbox" data-layer="gaines" checked> <span data-i18n>Gaines</span></label>
+    <label><input type="checkbox" data-layer="dims" checked> <span data-i18n>Cotes</span></label>
   </span>
   <span class="sp"></span>
   <span id="sMsg"></span>
 </footer>
 
+<script src="i18n.js"></script>
 <script src="model.js"></script>
 <script src="symbols.js"></script>
 <script src="app.js"></script>

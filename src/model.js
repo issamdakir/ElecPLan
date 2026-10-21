@@ -4,21 +4,21 @@ const uid = (p = 'x') => p + Math.random().toString(36).slice(2, 8);
 
 function newLevel(name, elevation = 0) {
   return { id: uid('lv'), name, elevation, background: null,
-    walls: [], rooms: [], openings: [], dims: [], texts: [], devices: [], gaines: [] };
+    walls: [], rooms: [], labels: [], openings: [], dims: [], texts: [], devices: [], gaines: [] };
 }
 function newProject() {
-  return { app: 'ElecPlan', version: FPP_VERSION, name: 'Nouveau projet', created: new Date().toISOString(),
+  return { app: 'ElecPlan', version: FPP_VERSION, name: I18N.t('Nouveau projet'), created: new Date().toISOString(),
     settings: { grid: 10, symbol: 2 },
     circuits: [
-      { id: 'c1', name: 'Éclairage 1', cal: '10A', section: '1,5', tableau: 'TD' },
-      { id: 'c2', name: 'Prises', cal: '20A', section: '2,5', tableau: 'TD' }
+      { id: 'c1', name: I18N.t('Éclairage 1'), cal: '10A', section: '1,5', tableau: 'TD' },
+      { id: 'c2', name: I18N.t('Prises'), cal: '20A', section: '2,5', tableau: 'TD' }
     ],
-    levels: [newLevel('RDC', 0)] };
+    levels: [newLevel(I18N.t('RDC'), 0)] };
 }
 function migrate(p) {
   p.settings = Object.assign({ grid: 10, symbol: 2 }, p.settings || {});
   p.circuits = p.circuits || [];
-  for (const l of p.levels) for (const k of ['walls', 'rooms', 'openings', 'dims', 'texts', 'devices', 'gaines']) l[k] = l[k] || [];
+  for (const l of p.levels) for (const k of ['walls', 'rooms', 'labels', 'openings', 'dims', 'texts', 'devices', 'gaines']) l[k] = l[k] || [];
   return p;
 }
 
@@ -32,7 +32,20 @@ const G = {
   inPoly(p, pts) { let c = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const a = pts[i], b = pts[j]; if ((a[1] > p[1]) !== (b[1] > p[1]) && p[0] < (b[0] - a[0]) * (p[1] - a[1]) / (b[1] - a[1]) + a[0]) c = !c; } return c; },
   // polygone d'un mur épais (polyligne) — renvoie une liste de quadrilatères
   wallQuads(w) { const out = [], h = w.thick / 2; for (let i = 0; i < w.pts.length - 1; i++) { const a = w.pts[i], b = w.pts[i + 1], L = G.dist(a, b) || 1, nx = -(b[1] - a[1]) / L * h, ny = (b[0] - a[0]) / L * h; out.push([[a[0] + nx, a[1] + ny], [b[0] + nx, b[1] + ny], [b[0] - nx, b[1] - ny], [a[0] - nx, a[1] - ny]]); } return out; },
-  fmtM: (cm) => (cm / 100).toFixed(2).replace('.', ',')
+  // décale un polygone fermé vers l'extérieur de d (angles mitrés) : murs construits autour d'une pièce
+  offsetOut(pts, d) {
+    const n = pts.length, nrm = [];
+    for (let i = 0; i < n; i++) { const a = pts[i], b = pts[(i + 1) % n], L = G.dist(a, b) || 1; nrm.push([(b[1] - a[1]) / L, -(b[0] - a[0]) / L]); }
+    // orienter les normales vers l'extérieur (même sens pour toutes les arêtes)
+    const m = [(pts[0][0] + pts[1][0]) / 2 + nrm[0][0], (pts[0][1] + pts[1][1]) / 2 + nrm[0][1]], k = G.inPoly(m, pts) ? -1 : 1;
+    return pts.map((p, i) => {
+      const n1 = nrm[(i - 1 + n) % n], n2 = nrm[i], c = 1 + n1[0] * n2[0] + n1[1] * n2[1];
+      const f = c > 0.05 ? d / c : d;                 // arêtes presque opposées : pas de mitre infinie
+      return [Math.round((p[0] + k * (c > 0.05 ? n1[0] + n2[0] : n2[0]) * f) * 10) / 10, Math.round((p[1] + k * (c > 0.05 ? n1[1] + n2[1] : n2[1]) * f) * 10) / 10];
+    });
+  },
+  fmtM: (cm) => I18N.num((cm / 100).toFixed(2)),
+  fmtArea: (pts) => I18N.num((G.polyArea(pts) / 10000).toFixed(2))
 };
 
 // --- numérotation des gaines : G01, G02… unique par projet, jamais réutilisée automatiquement ---

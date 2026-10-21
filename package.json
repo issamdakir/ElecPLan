@@ -10,7 +10,10 @@
   },
   "license": "UNLICENSED",
   "scripts": {
-    "start": "electron .",
+    "start": "env -u ELECTRON_RUN_AS_NODE electron . --no-sandbox",
+    "manual": "env -u ELECTRON_RUN_AS_NODE electron docs/manual/tools/build.js --no-sandbox",
+    "manual:shots": "env -u ELECTRON_RUN_AS_NODE sh -c \"electron docs/manual/tools/capture.js en --no-sandbox && electron docs/manual/tools/capture.js fr --no-sandbox\"",
+    "predist": "npm run manual:shots && npm run manual",
     "dist": "electron-builder --linux AppImage deb"
   },
   "build": {
@@ -28,6 +31,7 @@
         "deb"
       ],
       "category": "Graphics",
+      "icon": "build/icons",
       "maintainer": "Issam",
       "executableName": "elecplan",
       "artifactName": "ElecPlan-${version}.${ext}",

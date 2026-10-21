@@ -14,3 +14,8 @@ if [ "$1" = remove ] || [ "$1" = purge ]; then
         rm -f '/etc/apparmor.d/${executable}'
     fi
 fi
+
+# Refresh the icon cache so the menu shows the new icon right away
+if hash gtk-update-icon-cache 2>/dev/null; then
+    gtk-update-icon-cache -q -t -f /usr/share/icons/hicolor || true
+fi

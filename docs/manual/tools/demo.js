@@ -1,7 +1,7 @@
 // Projet d'exemple et tâche IA de démonstration utilisés pour les captures du manuel (une version par langue).
 const T = {
-  fr: { project: 'Villa exemple', level: 'RDC', garage: 'Garage', yard: 'Cour', c1: 'Éclairage 1', c2: 'Prises' },
-  en: { project: 'Sample villa', level: 'Ground floor', garage: 'Garage', yard: 'Yard', c1: 'Lighting 1', c2: 'Sockets' }
+  fr: { project: 'Villa exemple', level: 'Niveau 0', garage: 'Garage', yard: 'Cour', c1: 'Éclairage 1', c2: 'Prises' },
+  en: { project: 'Sample villa', level: 'Level 0', garage: 'Garage', yard: 'Yard', c1: 'Lighting 1', c2: 'Sockets' }
 };
 const LABEL = {
   fr: { bd: 'Boîte de dérivation', prise: 'Prise', inter_vv: 'Va-et-vient', lum: 'Luminaire', spots: 'Groupe de spots', dm: 'Détecteur mvt' },

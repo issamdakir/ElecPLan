@@ -78,7 +78,7 @@ Aucune installation : le fichier se lance tel quel, depuis une clé USB par exem
 |-----|----------|
 | Projets | là où tu les enregistres (fichiers `.elecplan.json` ; les anciens `.fpp.json` s'ouvrent aussi) |
 | Récupération automatique | mémoire locale de l'application, à chaque modification |
-| Réglages (langue, préférences, fichiers récents, assistant) | `~/.config/ElecPlan/settings.json` |
+| Réglages (langue, paramètres, fichiers récents, assistant) | `~/.config/ElecPlan/settings.json` |
 | Tâches IA | `~/.config/ElecPlan/jobs/<id>/` |
 
 ## Assistant IA · Claude Code
@@ -122,22 +122,23 @@ npm run dist     # construire .AppImage et .deb (construit aussi le manuel)
 | 6 | Panneau | Propriétés de la sélection, bibliothèque d'appareils, nomenclature, assistant IA. <kbd>N</kbd> le masque. |
 | 7 | Barre d'état | Coordonnées, zoom, taille des carreaux, grille et pas, angles 15°, épaisseur des murs, couches visibles, messages. |
 | 8 | Zoom | +, −, et ⤢ pour tout voir. |
-| 9 | Langue et préférences | FR / EN change la langue de l'interface immédiatement, sans perdre le travail en cours (aussi Affichage → Langue). Au premier lancement, la langue suit celle du système. ⚙ ouvre les préférences. |
+| 9 | Langue et paramètres | FR / EN change la langue de l'interface immédiatement, sans perdre le travail en cours (aussi Affichage → Langue). Au premier lancement, la langue suit celle du système. ⚙ ouvre les paramètres. |
 
-## Préférences
+## Paramètres
 
-**⚙** en haut à droite, <kbd>Ctrl+,</kbd> ou Édition → Préférences. Elles valent pour tous les projets et sont gardées d'une session à l'autre :
+**⚙** en haut à droite, <kbd>Ctrl+,</kbd> ou Édition → Paramètres. Ils valent pour tous les projets et sont gardés d'une session à l'autre :
 
+- **Apparence** : thème (*Atelier*, vert d'eau sur papier crème, l'aspect d'origine ; *Nordique*, ardoise froide et accent indigo ; *Graphite*, gris neutres et accent ambre) et mode clair / sombre, ou comme le système. Les exports (PDF, SVG) utilisent toujours la version claire, faite pour le papier ;
 - **Couleurs** de l'interface, du plan (fond, murs, remplissage des espaces, symboles, grille, axes) et de chaque nature de gaine ;
 - **Affichage** : règles, axes de la scène, lignes de la grille, vitesse du zoom ;
 - **Valeurs au démarrage et pour les nouveaux éléments** : épaisseur des murs, pas de la grille, accrochage, angles 15°, largeurs des portes et fenêtres, position des murs d'un espace, surface sur les étiquettes.
 
-↺ à côté d'une valeur modifiée remet sa valeur d'usine ; « Tout remettre aux valeurs d'usine » les remet toutes.
+Une couleur modifiée remplace celle du thème ; ↺ à côté d'une valeur modifiée remet la valeur du thème ou d'usine ; « Tout remettre aux valeurs d'usine » les remet toutes.
 
 # Prise en main
 
 ::: steps
-1. **Créer le projet.** Clique « Nouveau », puis renomme le projet en haut à gauche. Renomme le niveau « RDC » si besoin (double-clic sur l'onglet).
+1. **Créer le projet.** Clique « Nouveau », puis renomme le projet en haut à gauche. Renomme le niveau « Niveau 0 » si besoin, en « RDC » ou « Cave » par exemple (double-clic sur l'onglet).
 2. **Importer un fond (facultatif).** « Fond de plan » → image ou PDF. Puis outil **Échelle** : clique 2 points dont tu connais la distance et saisis-la en mètres.
 3. **Tracer les murs.** Outil **Mur** <kbd>W</kbd> : clique chaque angle. Clique sur le premier point pour fermer, ou double-clic / <kbd>Entrée</kbd> pour finir. Choisis l'épaisseur dans la barre d'état.
 4. **Définir les espaces.** Outil **Espace** <kbd>R</kbd> : glisse d'un angle intérieur à l'autre. Nomme-le et règle largeur et hauteur dans Propriétés ; coche « Ajouter les murs » (ou <kbd>E</kbd>) pour construire ses murs si tu ne les as pas tracés.
@@ -159,7 +160,7 @@ npm run dist     # construire .AppImage et .deb (construit aussi le manuel)
 | Vue | — | Glisser pour déplacer la vue. | À tout moment, comme dans Blender : glisser avec le clic molette (ou <kbd>Espace</kbd> + glisser). Ctrl + clic molette ou molette : zoom au curseur. Origine : tout voir. |
 | Mur | <kbd>W</kbd> | Clics successifs. Fin : double-clic, <kbd>Entrée</kbd>, clic droit, ou clic sur le premier point (mur fermé). | Angles par pas de 15° et longueurs au pas de grille ; <kbd>Maj</kbd> pour un angle libre. Accrochage automatique aux sommets existants. **Longueur exacte :** tape-la en mètres (`3.4`) puis <kbd>Entrée</kbd> ; `3.4<90` fixe aussi l'angle (0° = droite, 90° = haut). |
 | Espace | <kbd>R</kbd> | Glisser d'un angle à l'autre (ou clic, puis clic) : un rectangle. | Largeur et hauteur dans Propriétés tant qu'il reste rectangulaire (même tourné) ; autres formes en mode édition. Ne crée pas de murs ; voir *Espaces* ci-dessous. |
-| Porte | <kbd>D</kbd> | Survole un mur, clic pour poser (83 cm par défaut, voir Préférences). | <kbd>R</kbd> : tourne le battant ; <kbd>Maj+R</kbd> : inverse. S'aimante au milieu du mur (entre angles et murs raccordés) et affiche les distances ; « Centrer sur le mur » dans Propriétés. |
+| Porte | <kbd>D</kbd> | Survole un mur, clic pour poser (83 cm par défaut, voir Paramètres). | <kbd>R</kbd> : tourne le battant ; <kbd>Maj+R</kbd> : inverse. S'aimante au milieu du mur (entre angles et murs raccordés) et affiche les distances ; « Centrer sur le mur » dans Propriétés. |
 | Fenêtre | <kbd>F</kbd> | Survole un mur, clic pour poser (120 cm par défaut). | S'aligne sur le mur, prend son épaisseur et s'aimante au milieu, comme la porte. |
 | Cote | <kbd>C</kbd> | 2 clics sur les points à coter. | Décalage positif ou négatif dans Propriétés ; la valeur suit les points. |
 | Texte | <kbd>Maj+Espace</kbd> T | Clic puis saisie. | Double-clic en Sélection pour modifier. |
@@ -274,7 +275,7 @@ L'onglet **Nomenclature** donne :
 | Exporter SVG | menu Fichier | Plan vectoriel du niveau courant, pour un logiciel de dessin |
 | Nomenclature CSV | onglet Nomenclature | Appareils et gaines de tout le projet |
 
-Les exports (PDF, CSV) sont rédigés dans la langue de l'interface et avec tes préférences de couleurs au moment de l'export.
+Les exports (PDF, CSV) sont rédigés dans la langue de l'interface et avec tes couleurs choisies dans les paramètres au moment de l'export.
 
 ![Export PDF A3 : plan à l'échelle, cartouche (projet, niveau), légende, échelle et date.](img/fr/s_pdf.png){width=75%}
 
@@ -356,7 +357,7 @@ Les raccourcis suivent Blender quand c'est pertinent.
 | <kbd>Flèches</kbd> | Déplacer (Maj : 50 cm) |
 | <kbd>Ctrl+Z</kbd> / <kbd>Ctrl+Maj+Z</kbd> | Annuler / rétablir |
 | <kbd>Ctrl+S</kbd> / <kbd>Ctrl+O</kbd> | Enregistrer / ouvrir |
-| <kbd>Ctrl+,</kbd> | Préférences |
+| <kbd>Ctrl+,</kbd> | Paramètres |
 | <kbd>F12</kbd> / <kbd>Ctrl+P</kbd> | Exporter PDF |
 | <kbd>Maj</kbd> (tracé) / <kbd>Alt</kbd> (déplacement) | Angle libre / sans grille |
 
@@ -372,7 +373,7 @@ Les raccourcis suivent Blender quand c'est pertinent.
 | Le fond PDF est flou | Il est rendu à 3× ; pour plus de détail, exporte la page en image haute définition et importe l'image. |
 | Un élément ne se sélectionne pas | Vérifie que sa couche est cochée dans la barre d'état. |
 | Les symboles sont trop petits | Propriétés (sans sélection) → Symboles → Taille. |
-| Couleurs ou valeurs par défaut étranges | Préférences (⚙) → « Tout remettre aux valeurs d'usine ». |
+| Couleurs ou valeurs par défaut étranges | Paramètres (⚙) → « Tout remettre aux valeurs d'usine ». |
 | L'interface n'est pas dans ma langue | Sélecteur FR / EN en haut à droite, ou menu Affichage → Langue. |
 
 # Format du fichier projet
@@ -385,7 +386,7 @@ Un projet `.elecplan.json` est un JSON lisible (les anciens projets `.fpp.json` 
   "settings": { "grid": 10, "symbol": 2 },
   "circuits": [ { "id": "c1", "name": "Éclairage 1", "cal": "10A", "section": "1,5", "tableau": "TD" } ],
   "levels": [ {
-    "id": "lv…", "name": "RDC", "elevation": 0,
+    "id": "lv…", "name": "Niveau 0", "elevation": 0,
     "background": { "src": "data:image/png;base64,…", "x": 0, "y": 0, "w": 2000, "h": 1400, "opacity": 0.5 },
     "walls":    [ { "id": "w…", "pts": [[0,0],[1200,0],[1200,800]], "thick": 20 } ],
     "rooms":    [ { "id": "r…", "name": "Garage", "pts": [[0,0],[500,0],[500,800],[0,800]] } ],

@@ -78,7 +78,7 @@ No installation: the file runs as is, from a USB stick for example. Some recent 
 |-----|----------|
 | Projects | wherever you save them (`.elecplan.json` files; older `.fpp.json` files open too) |
 | Automatic recovery | the application's local storage, on every change |
-| Settings (language, preferences, recent files, assistant) | `~/.config/ElecPlan/settings.json` |
+| Settings (language, app settings, recent files, assistant) | `~/.config/ElecPlan/settings.json` |
 | AI tasks | `~/.config/ElecPlan/jobs/<id>/` |
 
 ## AI assistant · Claude Code
@@ -122,22 +122,23 @@ npm run dist     # build .AppImage and .deb (also builds the manual)
 | 6 | Panel | Properties of the selection, device library, bill of materials (Materials), AI assistant. <kbd>N</kbd> hides it. |
 | 7 | Status bar | Coordinates, zoom, grid square size, grid and step, 15° angles, wall thickness, visible layers, messages. |
 | 8 | Zoom | +, −, and ⤢ to fit everything. |
-| 9 | Language and preferences | FR / EN switches the interface language immediately, without losing your work (also View → Language). On first launch, the language follows the system. ⚙ opens the preferences. |
+| 9 | Language and settings | FR / EN switches the interface language immediately, without losing your work (also View → Language). On first launch, the language follows the system. ⚙ opens the settings. |
 
-## Preferences
+## Settings
 
-**⚙** at the top right, <kbd>Ctrl+,</kbd> or Edit → Preferences. They apply to all projects and are kept between sessions:
+**⚙** at the top right, <kbd>Ctrl+,</kbd> or Edit → Settings. They apply to all projects and are kept between sessions:
 
+- **Appearance**: theme (*Atelier*, teal on warm cream, the original look; *Nordic*, cool slate with an indigo accent; *Graphite*, neutral greys with an amber accent) and light / dark mode, or the same as the system. Exports (PDF, SVG) always use the light version, made for paper;
 - **Colours** of the interface, the plan (background, walls, space fill, device symbols, grid, axes) and each conduit kind;
 - **Display**: rulers, scene axes, grid lines, zoom speed;
 - **Values at startup and for new items**: wall thickness, grid step, snapping, 15° angles, door and window widths, position of a space's walls, area shown on labels.
 
-↺ next to a changed value restores its factory value; “Reset all to factory defaults” restores them all.
+A colour you change overrides the theme's; ↺ next to a changed value restores the theme or factory value; “Reset all to factory defaults” restores them all.
 
 # Getting started
 
 ::: steps
-1. **Create the project.** Click “New”, then rename the project at the top left. Rename the “Ground floor” level if needed (double-click its tab).
+1. **Create the project.** Click “New”, then rename the project at the top left. Rename the “Level 0” level if needed, to “Ground floor” or “Basement” for example (double-click its tab).
 2. **Import a background (optional).** “Background” → image or PDF. Then the **Scale** tool: click 2 points whose distance you know and enter it in metres.
 3. **Draw the walls.** The **Wall** tool <kbd>W</kbd>: click each corner. Click the first point to close, or double-click / <kbd>Enter</kbd> to finish. Pick the thickness in the status bar.
 4. **Define the spaces.** The **Space** tool <kbd>R</kbd>: drag from one inside corner to the other. Name it and set its width and height in Properties; tick “Add walls” (or <kbd>E</kbd>) to build its walls if you have not drawn them.
@@ -159,7 +160,7 @@ npm run dist     # build .AppImage and .deb (also builds the manual)
 | View | — | Drag to pan the view. | At any time, as in Blender: middle-drag (or <kbd>Space</kbd> + drag). Ctrl + middle-drag or wheel: zoom at the cursor. Home: fit all. |
 | Wall | <kbd>W</kbd> | Click point by point. To finish: double-click, <kbd>Enter</kbd>, right-click, or click the first point (closed wall). | Angles in 15° steps and lengths on the grid step; <kbd>Shift</kbd> for a free angle. Automatic snapping to existing vertices. **Exact length:** type it in metres (`3.4`), then <kbd>Enter</kbd>; `3.4<90` also sets the angle (0° = right, 90° = up). |
 | Space | <kbd>R</kbd> | Drag from corner to corner (or click, then click): a rectangle. | Width and height in Properties while it stays rectangular (even rotated); other shapes in Edit mode. Creates no walls; see *Spaces* below. |
-| Door | <kbd>D</kbd> | Hover over a wall, click to place (83 cm by default, see Preferences). | <kbd>R</kbd>: rotates the leaf; <kbd>Shift+R</kbd>: flips it. Snaps to the middle of the wall (between corners and joining walls) and shows the distances; “Centre on wall” in Properties. |
+| Door | <kbd>D</kbd> | Hover over a wall, click to place (83 cm by default, see Settings). | <kbd>R</kbd>: rotates the leaf; <kbd>Shift+R</kbd>: flips it. Snaps to the middle of the wall (between corners and joining walls) and shows the distances; “Centre on wall” in Properties. |
 | Window | <kbd>F</kbd> | Hover over a wall, click to place (120 cm by default). | Aligns with the wall, takes its thickness and snaps to the middle, like the door. |
 | Dimension | <kbd>C</kbd> | Click the 2 points to measure. | Positive or negative offset in Properties; the value follows the points. |
 | Text | <kbd>Shift+Space</kbd> T | Click, then type. | Double-click with Select to edit. |
@@ -274,7 +275,7 @@ The **Materials** tab gives:
 | Export SVG | File menu | Vector plan of the current level, for drawing software |
 | Bill of materials CSV | Materials tab | Devices and conduits of the whole project |
 
-Exports (PDF, CSV) use the interface language and your colour preferences at the time of export.
+Exports (PDF, CSV) use the interface language and your colour settings at the time of export.
 
 ![A3 PDF export: plan to scale, title block (project, level), legend, scale and date.](img/en/s_pdf.png){width=75%}
 
@@ -356,7 +357,7 @@ Shortcuts follow Blender where it makes sense.
 | <kbd>Arrows</kbd> | Move (Shift: 50 cm) |
 | <kbd>Ctrl+Z</kbd> / <kbd>Ctrl+Shift+Z</kbd> | Undo / redo |
 | <kbd>Ctrl+S</kbd> / <kbd>Ctrl+O</kbd> | Save / open |
-| <kbd>Ctrl+,</kbd> | Preferences |
+| <kbd>Ctrl+,</kbd> | Settings |
 | <kbd>F12</kbd> / <kbd>Ctrl+P</kbd> | Export PDF |
 | <kbd>Shift</kbd> (drawing) / <kbd>Alt</kbd> (moving) | Free angle / ignore grid |
 
@@ -372,7 +373,7 @@ Shortcuts follow Blender where it makes sense.
 | The PDF background is blurry | It is rendered at 3×; for more detail, export the page as a high-resolution image and import that. |
 | An item can't be selected | Check that its layer is ticked in the status bar. |
 | Symbols are too small | Properties (nothing selected) → Symbols → Size. |
-| Colours or defaults look wrong | Preferences (⚙) → “Reset all to factory defaults”. |
+| Colours or defaults look wrong | Settings (⚙) → “Reset all to factory defaults”. |
 | The interface is not in my language | FR / EN selector at the top right, or View → Language menu. |
 
 # Project file format
@@ -385,7 +386,7 @@ An `.elecplan.json` project is readable JSON (older `.fpp.json` projects open to
   "settings": { "grid": 10, "symbol": 2 },
   "circuits": [ { "id": "c1", "name": "Lighting 1", "cal": "10A", "section": "1,5", "tableau": "TD" } ],
   "levels": [ {
-    "id": "lv…", "name": "Ground floor", "elevation": 0,
+    "id": "lv…", "name": "Level 0", "elevation": 0,
     "background": { "src": "data:image/png;base64,…", "x": 0, "y": 0, "w": 2000, "h": 1400, "opacity": 0.5 },
     "walls":    [ { "id": "w…", "pts": [[0,0],[1200,0],[1200,800]], "thick": 20 } ],
     "rooms":    [ { "id": "r…", "name": "Garage", "pts": [[0,0],[500,0],[500,800],[0,800]] } ],

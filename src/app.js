@@ -26,14 +26,15 @@ const svg = $('#cv');
 const L = () => P.levels[LI];
 const opt = { snap: true, grid: 10, ortho: true, thick: 20 };
 
-// ---------- préférences de l'application (réglages de l'utilisateur, communs à tous les projets) ----------
+// ---------- paramètres de l'application (Settings ; réglages de l'utilisateur, communs à tous les projets) ----------
 // seules les valeurs modifiées sont enregistrées (réglages de l'app, clé « prefs ») ; le reste suit les valeurs d'usine
-const GAINE_DEFAULT = Object.fromEntries(Object.entries(GAINE_KINDS).map(([k, v]) => [k, v.color]));
+// couleurs : la valeur d'usine est celle du thème choisi (src/themes.js), en clair ou en sombre ; une couleur modifiée reste prioritaire
 const PREF_DEFS = [
-  ['Couleurs de l\'interface', [['accent', 'color', '#0f6b5a', 'Couleur principale'], ['sel', 'color', '#e8572a', 'Sélection et tracé en cours']]],
-  ['Couleurs du plan', [['canvas', 'color', '#fbfcfb', 'Fond du plan'], ['wall', 'color', '#2b3330', 'Murs'], ['room', 'color', '#f3efe4', 'Espaces (remplissage par défaut)'], ['device', 'color', '#17201d', 'Symboles des appareils'],
-    ['grid', 'color', '#e7ecea', 'Grille'], ['gridMajor', 'color', '#d7dfdb', 'Grille : lignes des mètres'], ['axisX', 'color', '#e2867d', 'Axe X'], ['axisY', 'color', '#86b86f', 'Axe Y']]],
-  ['Couleurs des gaines', Object.keys(GAINE_KINDS).map(k => ['g_' + k, 'color', GAINE_DEFAULT[k], GAINE_KINDS[k].label])],
+  ['Apparence', [['theme', 'sel', 'atelier', 'Thème', Object.entries(THEMES).map(([k, t]) => [k, t.name])], ['mode', 'sel', 'system', 'Mode clair / sombre', [['system', 'Comme le système'], ['light', 'Clair'], ['dark', 'Sombre']]]]],
+  ['Couleurs de l\'interface', [['accent', 'color', null, 'Couleur principale'], ['sel', 'color', null, 'Sélection et tracé en cours']]],
+  ['Couleurs du plan', [['canvas', 'color', null, 'Fond du plan'], ['wall', 'color', null, 'Murs'], ['room', 'color', null, 'Espaces (remplissage par défaut)'], ['device', 'color', null, 'Symboles et textes'],
+    ['grid', 'color', null, 'Grille'], ['gridMajor', 'color', null, 'Grille : lignes des mètres'], ['axisX', 'color', null, 'Axe X'], ['axisY', 'color', null, 'Axe Y']]],
+  ['Couleurs des gaines', Object.keys(GAINE_KINDS).map(k => ['g_' + k, 'color', null, GAINE_KINDS[k].label])],
   ['Affichage|prefs', [['rulers', 'bool', true, 'Règles'], ['axes', 'bool', true, 'Axes de la scène'], ['gridShow', 'bool', true, 'Lignes de la grille'], ['zoomSpeed', 'num', 100, 'Vitesse du zoom (%)', { min: 25, max: 400, step: 25 }]]],
   ['Au démarrage et pour les nouveaux éléments', [['thick', 'num', 20, 'Épaisseur des murs (cm)', { min: 1, max: 200 }], ['gridStep', 'sel', 10, 'Pas de la grille', [5, 10, 25, 50].map(v => [v, v + ' cm'])],
     ['snap', 'bool', true, 'Accrocher à la grille'], ['ortho', 'bool', true, 'Angles par pas de 15°'], ['doorW', 'num', 83, 'Largeur des portes (cm)', { min: 30, max: 400 }], ['windowW', 'num', 120, 'Largeur des fenêtres (cm)', { min: 20, max: 600 }],
@@ -41,15 +42,25 @@ const PREF_DEFS = [
 ];
 const PREF = Object.fromEntries(PREF_DEFS.flatMap(([, items]) => items.map(([k, type, def, label, extra]) => [k, { type, def, label, extra }])));
 let prefs = {};
-const pref = k => k in prefs ? prefs[k] : PREF[k].def;
+let forceLight = false;   // pendant un export : version claire du thème (le papier est blanc)
+const darkMQ = window.matchMedia('(prefers-color-scheme: dark)');
+const isDark = () => !forceLight && (pref('mode') === 'dark' || (pref('mode') === 'system' && darkMQ.matches));
+const theme = () => (THEMES[pref('theme')] || THEMES.atelier)[isDark() ? 'dark' : 'light'];
+const defOf = k => PREF[k].type === 'color' ? theme()[k] : PREF[k].def;
+const pref = k => k in prefs ? prefs[k] : defOf(k);
+const syncGaineColors = () => Object.keys(GAINE_KINDS).forEach(k => GAINE_KINDS[k].color = pref('g_' + k));
 const mixHex = (a, b, t) => { const p = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)), x = p(a), y = p(b); return '#' + x.map((v, i) => Math.round(v + (y[i] - v) * t).toString(16).padStart(2, '0')).join(''); };
 // applique les préférences ; startup (ou une valeur par défaut modifiée) : règle aussi les options de la barre d'état
 function applyPrefs(key) {
-  const rs = document.documentElement.style;
-  rs.setProperty('--accent', pref('accent')); rs.setProperty('--accent-soft', mixHex(pref('accent'), '#ffffff', .88)); rs.setProperty('--sel', pref('sel'));
+  const rs = document.documentElement.style, T = theme(), dark = isDark();
+  ['bg', 'surface', 'sunk', 'fg', 'muted', 'line', 'line2', 'warn', 'danger'].forEach(k => rs.setProperty('--' + k, T[k])); rs.setProperty('--warn-soft', T.warnSoft);
+  rs.setProperty('--accent', pref('accent')); rs.setProperty('--accent-soft', 'accent' in prefs ? mixHex(pref('accent'), T.surface, dark ? .78 : .88) : T.accentSoft); rs.setProperty('--sel', pref('sel'));
+  rs.colorScheme = dark ? 'dark' : 'light'; document.documentElement.dataset.mode = dark ? 'dark' : 'light';   // contrôles natifs (champs, barres de défilement) assortis
+  if (API && API.setThemeMode) API.setThemeMode(pref('mode'));   // menus de la fenêtre assortis
   [['--canvas', 'canvas'], ['--wall', 'wall'], ['--room', 'room'], ['--grid', 'grid'], ['--grid-major', 'gridMajor'], ['--axis-x', 'axisX'], ['--axis-y', 'axisY']].forEach(([v, k]) => rs.setProperty(v, pref(k)));
-  Object.keys(GAINE_KINDS).forEach(k => GAINE_KINDS[k].color = pref('g_' + k));
+  syncGaineColors();
   document.body.classList.toggle('no-rulers', !pref('rulers'));
+  renderLib();
   const all = !key;
   if (all || key === 'thick') { opt.thick = pref('thick'); const s = $('#optThick'); if (![...s.options].some(o => +o.value === opt.thick)) s.add(new Option(opt.thick + ' cm', opt.thick)); s.value = opt.thick; }
   if (all || key === 'gridStep') { opt.grid = +pref('gridStep'); $('#optGrid').value = opt.grid; }
@@ -57,6 +68,7 @@ function applyPrefs(key) {
   if (all || key === 'ortho') $('#optOrtho').checked = opt.ortho = pref('ortho');
   applyView(); render();
 }
+darkMQ.addEventListener('change', () => { if (pref('mode') !== 'system') return; applyPrefs('mode'); const d = document.querySelector('dialog.prefs'); if (d) d.dispatchEvent(new Event('refresh')); });
 function savePrefs() { if (API) API.setSettings({ prefs }); else try { localStorage.setItem('elecplan-prefs', JSON.stringify(prefs)); } catch {} }
 async function loadPrefs() {
   try { prefs = API ? ((await API.getSettings()).prefs || {}) : JSON.parse(localStorage.getItem('elecplan-prefs') || '{}'); } catch { prefs = {}; }
@@ -72,20 +84,22 @@ function openPrefs() {
     if (P0.type === 'num') return `<input type="number" data-pref="${k}" value="${v}" min="${P0.extra.min}" max="${P0.extra.max}" step="${P0.extra.step || 1}">`;
     return `<select data-pref="${k}">${P0.extra.map(([ov, ol]) => `<option value="${ov}" ${String(ov) === String(v) ? 'selected' : ''}>${esc(tr(ol))}</option>`).join('')}</select>`; };
   const fill = () => {
-    d.innerHTML = `<form method="dialog"><div class="prefs-head"><h2>${tr('Préférences')}</h2><span class="muted">${tr('Enregistrées pour tous les projets ; ↺ remet la valeur d\'usine.')}</span></div>
+    d.innerHTML = `<form method="dialog"><div class="prefs-head"><h2>${tr('Paramètres')}</h2><span class="muted">${tr('Enregistrées pour tous les projets ; ↺ remet la valeur d\'usine.')}</span></div>
       <div class="pgrid">${PREF_DEFS.map(([g, items]) => `<fieldset><legend>${esc(tr(g))}</legend>${items.map(([k]) => `<label class="prow"><span>${esc(tr(PREF[k].label))}</span>${control(k, pref(k))}<button type="button" class="preset" data-reset="${k}" title="${esc(tr('Valeur d\'usine'))}" ${k in prefs ? '' : 'hidden'}>↺</button></label>`).join('')}</fieldset>`).join('')}</div>
       <div class="row"><button type="button" class="btn danger" data-resetall>${tr('Tout remettre aux valeurs d\'usine')}</button><span class="sp"></span><button class="btn primary" value="ok">${tr('Fermer')}</button></div></form>`;
   };
   fill(); document.body.appendChild(d); d.showModal();
-  const set = (k, v) => { if (v === PREF[k].def) delete prefs[k]; else prefs[k] = v; const b = d.querySelector(`[data-reset="${k}"]`); if (b) b.hidden = !(k in prefs); savePrefs(); applyPrefs(k); };
+  const set = (k, v) => { if (v === defOf(k)) delete prefs[k]; else prefs[k] = v; const b = d.querySelector(`[data-reset="${k}"]`); if (b) b.hidden = !(k in prefs); savePrefs(); applyPrefs(k);
+    if (k === 'theme' || k === 'mode') fill(); };   // les couleurs affichées suivent le nouveau thème
+  d.addEventListener('refresh', fill);
   d.addEventListener('change', e => { const t = e.target, k = t.dataset.pref; if (!k) return; const P0 = PREF[k];
     let v = P0.type === 'bool' ? t.checked : P0.type === 'num' ? +t.value : P0.type === 'sel' ? (typeof P0.def === 'number' ? +t.value : t.value) : t.value.toLowerCase();
     if (P0.type === 'num' && !(v >= P0.extra.min && v <= P0.extra.max)) { t.value = pref(k); return; }
     set(k, v); });
   d.addEventListener('click', async e => {
     const r = e.target.closest('[data-reset]');
-    if (r) { const k = r.dataset.reset; delete prefs[k]; const t = d.querySelector(`[data-pref="${k}"]`); if (PREF[k].type === 'bool') t.checked = PREF[k].def; else t.value = PREF[k].def; set(k, PREF[k].def); return; }
-    if (e.target.closest('[data-resetall]') && await confirmBox(tr('Remettre toutes les préférences aux valeurs d\'usine ?'), tr('Tout remettre'))) { prefs = {}; savePrefs(); applyPrefs(); fill(); }
+    if (r) { const k = r.dataset.reset; delete prefs[k]; const t = d.querySelector(`[data-pref="${k}"]`), v = defOf(k); if (PREF[k].type === 'bool') t.checked = v; else t.value = v; set(k, v); return; }
+    if (e.target.closest('[data-resetall]') && await confirmBox(tr('Remettre tous les paramètres aux valeurs d\'usine ?'), tr('Tout remettre'))) { prefs = {}; savePrefs(); applyPrefs(); fill(); }
   });
   d.addEventListener('close', () => d.remove());
 }
@@ -107,7 +121,7 @@ function el(tag, attrs = {}, parent) { const e = document.createElementNS(NS, ta
 function ask(title, value = '', okLabel = 'OK') {
   return new Promise(res => {
     const d = document.createElement('dialog');
-    d.style.cssText = 'border:1px solid #d5dcd8;border-radius:8px;padding:14px;min-width:320px';
+    d.style.cssText = 'border:1px solid var(--line);border-radius:8px;padding:14px;min-width:320px';
     d.innerHTML = `<form method="dialog" style="display:flex;flex-direction:column;gap:8px"><b>${esc(title)}</b><input class="inp" name="v" value="${esc(value)}" autofocus><div class="row" style="justify-content:flex-end"><button class="btn" value="cancel">${esc(tr('Annuler'))}</button><button class="btn primary" value="ok">${esc(okLabel)}</button></div></form>`;
     document.body.appendChild(d); d.showModal(); const inp = d.querySelector('input'); inp.select();
     d.addEventListener('close', () => { const v = d.returnValue === 'ok' ? inp.value : null; d.remove(); res(v); });
@@ -116,7 +130,7 @@ function ask(title, value = '', okLabel = 'OK') {
 function confirmBox(title, okLabel = tr('Confirmer')) {
   return new Promise(res => {
     const d = document.createElement('dialog');
-    d.style.cssText = 'border:1px solid #d5dcd8;border-radius:8px;padding:14px;min-width:300px';
+    d.style.cssText = 'border:1px solid var(--line);border-radius:8px;padding:14px;min-width:300px';
     d.innerHTML = `<form method="dialog" style="display:flex;flex-direction:column;gap:10px"><b>${esc(title)}</b><div class="row" style="justify-content:flex-end"><button class="btn" value="cancel">${esc(tr('Annuler'))}</button><button class="btn danger" value="ok">${esc(okLabel)}</button></div></form>`;
     document.body.appendChild(d); d.showModal(); d.addEventListener('close', () => { const v = d.returnValue === 'ok'; d.remove(); res(v); });
   });
@@ -213,7 +227,7 @@ function render() {
     });
     lv.labels.forEach(lb => { const r = lv.rooms.find(x => x.id === lb.space); if (!r) return; const k = s * (lb.size || 1);
       const g = el('g', { transform: `translate(${lb.x},${lb.y}) rotate(${lb.rot || 0})`, 'data-k': 'labels', 'data-id': lb.id }, gTexts);
-      el('text', { x: 0, y: 0, class: 'g-roomlab', 'font-size': 14 * k }, g).textContent = r.name || '';
+      el('text', { x: 0, y: 0, class: 'g-roomlab', 'font-size': 14 * k, fill: pref('device') }, g).textContent = r.name || '';
       if (lb.area !== false) el('text', { x: 0, y: 16 * k, class: 'g-roomarea', 'font-size': 11 * k }, g).textContent = G.fmtArea(r.pts) + ' m²';
     });
     lv.walls.forEach(w => {
@@ -222,14 +236,14 @@ function render() {
       el(closed ? 'polygon' : 'polyline', { points: pts.map(p => p.join(',')).join(' '), fill: 'none', stroke: pref('wall'), 'stroke-width': w.thick, 'stroke-linejoin': 'miter', 'stroke-linecap': 'butt', 'data-k': 'walls', 'data-id': w.id }, gWalls);
     });
     lv.openings.forEach(o => drawOpening(o, gOpen));
-    lv.texts.forEach(t => { const e = el('text', { x: t.x, y: t.y, 'font-size': t.size || 18, 'font-family': 'Inter, DejaVu Sans, sans-serif', fill: '#17201d', 'data-k': 'texts', 'data-id': t.id }, gTexts); e.textContent = t.text; });
+    lv.texts.forEach(t => { const e = el('text', { x: t.x, y: t.y, class: 'g-text', 'font-size': t.size || 18, fill: pref('device'), 'data-k': 'texts', 'data-id': t.id }, gTexts); e.textContent = t.text; });
   }
   if (layers.dims) lv.dims.forEach(d => drawDim(d, gDims));
   if (layers.gaines) lv.gaines.forEach(g => drawGaine(g, gGaines));
   if (layers.elec) lv.devices.forEach(d => {
     const g = el('g', { transform: `translate(${d.x},${d.y}) rotate(${d.rot || 0})`, 'data-k': 'devices', 'data-id': d.id, style: 'cursor:pointer' }, gDev);
-    g.innerHTML = deviceSymbol(d.type, s * 1.0, pref('device'));
-    const t = el('text', { x: 17 * s, y: -10 * s, 'font-size': 10 * s, 'font-family': 'DejaVu Sans Mono, monospace', 'font-weight': 700, fill: '#17201d', transform: `rotate(${-(d.rot || 0)})`, 'paint-order': 'stroke', stroke: '#fff', 'stroke-width': 3 * s }, g);
+    g.innerHTML = deviceSymbol(d.type, s * 1.0, pref('device'), pref('canvas'));
+    const t = el('text', { x: 17 * s, y: -10 * s, 'font-size': 10 * s, 'font-family': 'DejaVu Sans Mono, monospace', 'font-weight': 700, fill: pref('device'), transform: `rotate(${-(d.rot || 0)})`, 'paint-order': 'stroke', stroke: pref('canvas'), 'stroke-width': 3 * s }, g);
     t.textContent = d.ref || '';
   });
   $('#canvaswrap').classList.toggle('editing', !!edit);
@@ -281,19 +295,20 @@ function rulerCursor() {
   a.setAttribute('x1', x); a.setAttribute('x2', x); b.setAttribute('y1', y); b.setAttribute('y2', y);
 }
 function drawOpening(o, parent, preview) {
+  const ink = pref('device');
   const g = el('g', { transform: `translate(${o.x},${o.y}) rotate(${o.angle || 0})`, 'data-k': 'openings', 'data-id': o.id || '' }, parent);
   const w = o.w, t = (o.thick || 20) + 2, half = w / 2;
   el('rect', { x: -half, y: -t / 2, width: w, height: t, fill: preview ? 'rgba(232,87,42,.15)' : pref('canvas') }, g);
   if (o.type === 'door') {
     const fx = o.flip ? -1 : 1, fy = o.side ? -1 : 1;
-    el('line', { x1: -half * fx, y1: 0, x2: -half * fx, y2: -w * fy, stroke: '#17201d', 'stroke-width': 2 }, g);
-    el('path', { d: `M${-half * fx} ${-w * fy} A${w} ${w} 0 0 ${fx * fy > 0 ? 1 : 0} ${half * fx} 0`, fill: 'none', stroke: '#17201d', 'stroke-width': 1, 'stroke-dasharray': '4 3' }, g);
-    el('line', { x1: -half, y1: -t / 2, x2: -half, y2: t / 2, stroke: '#17201d', 'stroke-width': 2 }, g);
-    el('line', { x1: half, y1: -t / 2, x2: half, y2: t / 2, stroke: '#17201d', 'stroke-width': 2 }, g);
+    el('line', { x1: -half * fx, y1: 0, x2: -half * fx, y2: -w * fy, stroke: ink, 'stroke-width': 2 }, g);
+    el('path', { d: `M${-half * fx} ${-w * fy} A${w} ${w} 0 0 ${fx * fy > 0 ? 1 : 0} ${half * fx} 0`, fill: 'none', stroke: ink, 'stroke-width': 1, 'stroke-dasharray': '4 3' }, g);
+    el('line', { x1: -half, y1: -t / 2, x2: -half, y2: t / 2, stroke: ink, 'stroke-width': 2 }, g);
+    el('line', { x1: half, y1: -t / 2, x2: half, y2: t / 2, stroke: ink, 'stroke-width': 2 }, g);
   } else {
-    el('rect', { x: -half, y: -t / 2, width: w, height: t, fill: 'none', stroke: '#17201d', 'stroke-width': 1.5 }, g);
-    el('line', { x1: -half, y1: 0, x2: half, y2: 0, stroke: '#17201d', 'stroke-width': 1.2 }, g);
-    el('line', { x1: -half, y1: -t / 6, x2: half, y2: -t / 6, stroke: '#17201d', 'stroke-width': .8 }, g);
+    el('rect', { x: -half, y: -t / 2, width: w, height: t, fill: 'none', stroke: ink, 'stroke-width': 1.5 }, g);
+    el('line', { x1: -half, y1: 0, x2: half, y2: 0, stroke: ink, 'stroke-width': 1.2 }, g);
+    el('line', { x1: -half, y1: -t / 6, x2: half, y2: -t / 6, stroke: ink, 'stroke-width': .8 }, g);
   }
   return g;
 }
@@ -351,7 +366,7 @@ function drawGaine(g, parent) {
   let bi = 0, bl = -1; for (let i = 0; i < pts.length - 1; i++) { const l = G.dist(pts[i], pts[i + 1]); if (l > bl) { bl = l; bi = i; } }
   const m = bezAt(S[bi], 0.5), s = P.settings.symbol || 1, w = (String(g.num).length * 7 + 8) * s;
   const lg = el('g', { transform: `translate(${m[0]},${m[1]})`, 'data-k': 'gaines', 'data-id': g.id, style: 'cursor:pointer' }, parent);
-  el('rect', { x: -w / 2, y: -8 * s, width: w, height: 16 * s, rx: 3 * s, fill: '#fff', stroke: k.color, 'stroke-width': 1.2 * s }, lg);
+  el('rect', { x: -w / 2, y: -8 * s, width: w, height: 16 * s, rx: 3 * s, fill: pref('canvas'), stroke: k.color, 'stroke-width': 1.2 * s }, lg);
   const t = el('text', { y: 3.6 * s, 'text-anchor': 'middle', 'font-family': 'DejaVu Sans Mono, monospace', 'font-weight': 700, 'font-size': 10 * s, fill: k.color }, lg); t.textContent = g.num;
 }
 function selShape() {
@@ -513,7 +528,7 @@ function drawDraft() {
   if (draft.rect) {   // espace en cours : rectangle entre le premier angle et la souris, avec ses côtés
     const a = draft.rect, b = draft.cur || cursor, x0 = Math.min(a[0], b[0]), y0 = Math.min(a[1], b[1]), w = Math.abs(b[0] - a[0]), h = Math.abs(b[1] - a[1]), fs = pxToWorld(12);
     el('rect', { x: x0, y: y0, width: w, height: h, class: 'preview' }, gOver);
-    const lab = (x, y, txt, anchor) => { const t = el('text', { x, y, 'text-anchor': anchor, 'font-size': fs, 'font-family': 'DejaVu Sans Mono, monospace', 'font-weight': 700, fill: '#e8572a', 'paint-order': 'stroke', stroke: '#fff', 'stroke-width': pxToWorld(3) }, gOver); t.textContent = txt; };
+    const lab = (x, y, txt, anchor) => { const t = el('text', { x, y, 'text-anchor': anchor, 'font-size': fs, 'font-family': 'DejaVu Sans Mono, monospace', 'font-weight': 700, fill: '#e8572a', 'paint-order': 'stroke', stroke: pref('canvas'), 'stroke-width': pxToWorld(3) }, gOver); t.textContent = txt; };
     lab(x0 + w / 2, y0 - pxToWorld(8), G.fmtM(w) + ' m', 'middle'); lab(x0 + w + pxToWorld(8), y0 + h / 2 + fs / 3, G.fmtM(h) + ' m', 'start');
     return;
   }
@@ -967,7 +982,7 @@ function drawOpeningGuides(g) {
   const ux = (sg.b[0] - sg.a[0]) / sg.L, uy = (sg.b[1] - sg.a[1]) / sg.L, nx = -uy, ny = ux, mt = (sg.s0 + sg.s1) / 2, m = [sg.a[0] + ux * mt, sg.a[1] + uy * mt], h = g.thick / 2 + pxToWorld(6);
   el('line', { x1: m[0] - nx * h, y1: m[1] - ny * h, x2: m[0] + nx * h, y2: m[1] + ny * h, class: 'mid-tick' + (sg.mid ? ' on' : '') }, gOver);
   const d1 = sg.along - g.w / 2 - sg.s0, d2 = sg.s1 - sg.along - g.w / 2, off = g.thick / 2 + pxToWorld(16);
-  const t = el('text', { x: g.x + nx * off, y: g.y + ny * off, 'text-anchor': 'middle', 'font-size': pxToWorld(12), 'font-family': 'DejaVu Sans Mono, monospace', 'font-weight': 700, fill: sg.mid ? '#0f6b5a' : '#e8572a', 'paint-order': 'stroke', stroke: '#fff', 'stroke-width': pxToWorld(3) }, gOver);
+  const t = el('text', { x: g.x + nx * off, y: g.y + ny * off, 'text-anchor': 'middle', 'font-size': pxToWorld(12), 'font-family': 'DejaVu Sans Mono, monospace', 'font-weight': 700, fill: sg.mid ? '#0f6b5a' : '#e8572a', 'paint-order': 'stroke', stroke: pref('canvas'), 'stroke-width': pxToWorld(3) }, gOver);
   t.textContent = (sg.mid ? '◆ ' + tr('milieu') + ' · ' : '') + G.fmtM(d1) + ' | ' + G.fmtM(d2) + ' m';
 }
 async function editText(id) { const t = findById('texts', id); if (!t) return; const v = await ask(tr('Texte'), t.text); if (v == null) return; commit(); t.text = v; markDirty(); render(); }
@@ -1060,7 +1075,7 @@ function openToolMenu() {
   closeToolMenu();
   const m = document.createElement('div'); m.className = 'toolmenu'; m.setAttribute('role', 'menu');
   m.innerHTML = `<b>${tr('Ajouter')}</b>` + TOOL_MENU.map(([t, l, key]) => `<button role="menuitem" data-mt="${t}"><span>${esc(tr(l))}</span><kbd>${key}</kbd></button>`).join('') +
-    `<b>${tr('Appareils')}</b><div class="tm-dev">` + DEVICE_TYPES.map(d => `<button role="menuitem" data-md="${d.type}" title="${esc(tr(d.label))}"><svg viewBox="-28 -20 56 40">${deviceSymbol(d.type, 1)}</svg><span>${esc(tr(d.label))}</span></button>`).join('') + '</div>';
+    `<b>${tr('Appareils')}</b><div class="tm-dev">` + DEVICE_TYPES.map(d => `<button role="menuitem" data-md="${d.type}" title="${esc(tr(d.label))}"><svg viewBox="-28 -20 56 40">${deviceSymbol(d.type, 1, theme().fg, theme().surface)}</svg><span>${esc(tr(d.label))}</span></button>`).join('') + '</div>';
   document.body.appendChild(m);
   const r = m.getBoundingClientRect(), x = Math.min(lastClient[0], innerWidth - r.width - 8), y = Math.min(lastClient[1], innerHeight - r.height - 8);
   m.style.left = Math.max(8, x) + 'px'; m.style.top = Math.max(8, y) + 'px';
@@ -1119,7 +1134,7 @@ function renderLevels() {
     b.onclick = () => { if (i === LI) return; LI = i; sel = null; edit = null; draft = null; renderLevels(); render(); };   // onglet déjà actif : ne pas redessiner, sinon le double-clic (renommer) est perdu
     b.ondblclick = async () => { const v = await ask(tr('Nom du niveau'), lv.name); if (v) { commit(); lv.name = v; markDirty(); renderLevels(); } };
     box.appendChild(b); });
-  const add = document.createElement('button'); add.className = 'add'; add.textContent = tr('+ Niveau'); add.onclick = async () => { const v = await ask(tr('Nom du nouveau niveau'), tr('Étage {0}', P.levels.length)); if (!v) return; commit(); P.levels.push(newLevel(v, P.levels.length * 300)); LI = P.levels.length - 1; markDirty(); renderLevels(); render(); };
+  const add = document.createElement('button'); add.className = 'add'; add.textContent = tr('+ Niveau'); add.onclick = async () => { const v = await ask(tr('Nom du nouveau niveau'), tr('Niveau {0}', P.levels.length)); if (!v) return; commit(); P.levels.push(newLevel(v, P.levels.length * 300)); LI = P.levels.length - 1; markDirty(); renderLevels(); render(); };
   box.appendChild(add);
 }
 
@@ -1162,7 +1177,7 @@ function renderProps() {
     if (sel.kind === 'rooms') { const w0 = spaceWalls(o)[0];
       const walls = field('Ajouter les murs', `<input type="checkbox" data-sw="on" style="width:auto;justify-self:start" ${w0 ? 'checked' : ''}>`) + (w0 ? field('Épaisseur (cm)', `<input data-sw="thick" type="number" min="1" value="${w0.thick}">`)
         + field('Position', `<select data-sw="pos">${[['out', 'Extérieur'], ['mid', 'Dans l\'axe'], ['in', 'Intérieur']].map(([v, l]) => `<option value="${v}" ${(w0.spacePos || 'out') === v ? 'selected' : ''}>${tr(l)}</option>`).join('')}</select>`) : '');
-      h = `<span class="lbl">${tr('Espace')}</span><h3>${esc(o.name)}</h3>${field('Nom', `<input data-p="name" value="${esc(o.name)}">`)}${(R => R ? field('Largeur (m)', `<input data-rect="w" type="number" step="0.01" min="0.01" value="${(R.w / 100).toFixed(2)}">`) + field('Hauteur (m)', `<input data-rect="h" type="number" step="0.01" min="0.01" value="${(R.h / 100).toFixed(2)}">`) : '')(rectOf(o.pts))}${field('Couleur', `<input data-p="color" type="color" value="${o.color || '#f3efe4'}">`)}<p class="muted">${tr('Surface {0} m² · périmètre {1} m', G.fmtArea(o.pts), G.fmtM(o.pts.reduce((s, p, i) => s + G.dist(p, o.pts[(i + 1) % o.pts.length]), 0)))}</p>${field('Afficher la surface', `<input type="checkbox" data-larea style="width:auto;justify-self:start" ${(labelOf(o) || {}).area !== false ? 'checked' : ''}>`)}<span class="lbl">${tr('Murs')}</span>${walls}`; }
+      h = `<span class="lbl">${tr('Espace')}</span><h3>${esc(o.name)}</h3>${field('Nom', `<input data-p="name" value="${esc(o.name)}">`)}${(R => R ? field('Largeur (m)', `<input data-rect="w" type="number" step="0.01" min="0.01" value="${(R.w / 100).toFixed(2)}">`) + field('Hauteur (m)', `<input data-rect="h" type="number" step="0.01" min="0.01" value="${(R.h / 100).toFixed(2)}">`) : '')(rectOf(o.pts))}${field('Couleur', `<input data-p="color" type="color" value="${o.color || pref('room')}">`)}<p class="muted">${tr('Surface {0} m² · périmètre {1} m', G.fmtArea(o.pts), G.fmtM(o.pts.reduce((s, p, i) => s + G.dist(p, o.pts[(i + 1) % o.pts.length]), 0)))}</p>${field('Afficher la surface', `<input type="checkbox" data-larea style="width:auto;justify-self:start" ${(labelOf(o) || {}).area !== false ? 'checked' : ''}>`)}<span class="lbl">${tr('Murs')}</span>${walls}`; }
     if (sel.kind === 'labels') { const r = findById('rooms', o.space) || { name: '' };
       h = `<span class="lbl">${tr('Étiquette d\'espace')}</span><h3>${esc(r.name)}</h3>${field('Nom', `<input data-lname value="${esc(r.name)}">`)}${field('Taille (%)', `<input data-lsize type="number" min="20" max="1000" step="10" value="${Math.round((o.size || 1) * 100)}">`)}${field('Angle (°)', `<input data-p="rot" type="number" value="${Math.round(o.rot || 0)}">`)}${field('Afficher la surface', `<input type="checkbox" data-larea style="width:auto;justify-self:start" ${o.area !== false ? 'checked' : ''}>`)}<div class="row"><button class="btn" data-act="labelspace">${tr('Sélectionner l\'espace')}</button></div><p class="muted">${tr('Glisse ou G pour la déplacer · R pivoter · S taille · double-clic : renommer')}</p>`; }
     if (sel.kind === 'openings') h = `<span class="lbl">${tr(o.type === 'door' ? 'Porte' : 'Fenêtre')}</span>${field('Largeur (cm)', `<input data-p="w" type="number" value="${o.w}">`)}${field('Angle (°)', `<input data-p="angle" type="number" value="${Math.round(o.angle || 0)}">`)}${o.type === 'door' ? field('Battant', `<select data-p="flip"><option value="">${tr('Gauche')}</option><option value="1" ${o.flip ? 'selected' : ''}>${tr('Droite')}</option></select>`) + field('Ouverture', `<select data-p="side"><option value="">${tr('Côté 1')}</option><option value="1" ${o.side ? 'selected' : ''}>${tr('Côté 2')}</option></select>`) : ''}<div class="row"><button class="btn" data-act="center">${tr('Centrer sur le mur')}</button></div>`;
@@ -1256,7 +1271,7 @@ $('#tab-props').addEventListener('click', e => {
 // ---------- bibliothèque d'appareils ----------
 function renderLib() {
   const groups = [...new Set(DEVICE_TYPES.map(d => d.group))];
-  $('#tab-lib').innerHTML = groups.map(g => `<span class="lbl">${esc(tr(g))}</span><div class="libgrid">${DEVICE_TYPES.filter(d => d.group === g).map(d => `<button data-dev="${d.type}" aria-pressed="${d.type === devType}"><svg viewBox="-28 -20 56 40">${deviceSymbol(d.type, 1)}</svg>${esc(tr(d.label))}</button>`).join('')}</div>`).join('') +
+  $('#tab-lib').innerHTML = groups.map(g => `<span class="lbl">${esc(tr(g))}</span><div class="libgrid">${DEVICE_TYPES.filter(d => d.group === g).map(d => `<button data-dev="${d.type}" aria-pressed="${d.type === devType}"><svg viewBox="-28 -20 56 40">${deviceSymbol(d.type, 1, theme().fg, theme().surface)}</svg>${esc(tr(d.label))}</button>`).join('')}</div>`).join('') +
     `<p class="muted">${tr('Choisis un type puis clique sur le plan. Le repère (P1, I2…) est attribué automatiquement et reste unique dans tout le projet.')}</p>`;
 }
 $('#tab-lib').addEventListener('click', e => { const b = e.target.closest('[data-dev]'); if (!b) return; devType = b.dataset.dev; renderLib(); setTool('device'); });
@@ -1331,18 +1346,20 @@ async function importBackground() {
 // ---------- export SVG / PDF ----------
 function levelSVG(lv, forPrint) {
   const keepLI = LI, keepSel = sel, keepDraft = draft, keepView = { ...view };
-  LI = P.levels.indexOf(lv); sel = null; draft = null;
+  LI = P.levels.indexOf(lv); sel = null; draft = null; forceLight = true; syncGaineColors();
   const b = bounds(lv); Object.assign(view, b);
   render(); svg.setAttribute('viewBox', `${b.x} ${b.y} ${b.w} ${b.h}`);
   const clone = svg.cloneNode(true); clone.querySelectorAll('.gridline').forEach(n => n.remove());
   clone.querySelectorAll('.g-hit').forEach(n => n.remove());
   // styles résolus (le fichier CSS n'est pas embarqué)
   clone.querySelectorAll('.g-room').forEach(n => { if (!n.getAttribute('fill')) n.setAttribute('fill', pref('room')); });
+  clone.querySelectorAll('.g-text').forEach(n => { n.setAttribute('font-family', 'DejaVu Sans, sans-serif'); n.setAttribute('font-weight', '600'); });   // même police que les étiquettes d'espace
   clone.querySelectorAll('.g-roomlab').forEach(n => { n.setAttribute('text-anchor', 'middle'); n.setAttribute('font-family', 'DejaVu Sans, sans-serif'); n.setAttribute('font-weight', '600'); n.setAttribute('fill', '#17201d'); });
   clone.querySelectorAll('.g-roomarea,.g-dimt').forEach(n => { n.setAttribute('text-anchor', 'middle'); n.setAttribute('font-family', 'DejaVu Sans Mono, monospace'); n.setAttribute('fill', '#3b4643'); });
   clone.querySelectorAll('.g-dim').forEach(n => { n.setAttribute('stroke', '#5d6b66'); n.setAttribute('fill', 'none'); if (!n.getAttribute('stroke-width')) n.setAttribute('stroke-width', '1'); });
   clone.querySelectorAll('.g-gaine').forEach(n => n.setAttribute('fill', 'none'));
   clone.setAttribute('xmlns', NS); clone.removeAttribute('id'); clone.removeAttribute('style');
+  forceLight = false; syncGaineColors();
   LI = keepLI; sel = keepSel; draft = keepDraft; Object.assign(view, keepView); applyView(); render();
   return { svg: clone.outerHTML, b };
 }
@@ -1401,7 +1418,7 @@ function applyLang() {
 function setLang(l) {
   I18N.setLang(l);
   try { localStorage.setItem('elecplan-lang', I18N.lang); } catch {}
-  // projet neuf et vide : recréer les noms par défaut (RDC, circuits…) dans la nouvelle langue
+  // projet neuf et vide : recréer les noms par défaut (Niveau 0, circuits…) dans la nouvelle langue
   const empty = P.levels.every(l => !l.walls.length && !l.rooms.length && !l.devices.length && !l.texts.length && !l.background);
   if (!dirty && !filePath && !hist.u.length && empty) { P = newProject(); LI = 0; sel = null; $('#projName').value = P.name; }
   applyLang(); renderLevels(); renderLib(); setTool(tool); renderNomen();

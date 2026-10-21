@@ -19,6 +19,7 @@ contextBridge.exposeInMainWorld('api', {
   aiResult: (id) => ipcRenderer.invoke('ai:readResult', id),
   onAiUpdate: (cb) => ipcRenderer.on('ai:update', (_e, j) => cb(j)),
   setDirty: (o) => ipcRenderer.send('app:dirty', o),
+  setThemeMode: (m) => ipcRenderer.send('theme:mode', m),
   onQuitRequest: (cb) => ipcRenderer.on('app:quit-request', (_e, a) => cb(a)),
   quitNow: () => ipcRenderer.send('app:quit-now'),
   onOpenFile: (cb) => ipcRenderer.on('open-file', (_e, r) => cb(r)),

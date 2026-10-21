@@ -1,6 +1,6 @@
 // ElecPlan — processus principal Electron
 // Fenêtre, fichiers projet (.elecplan.json), export PDF, et tâches IA en arrière-plan via Claude Code (claude -p).
-const { app, BrowserWindow, ipcMain, dialog, shell, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, Menu, nativeTheme } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -65,6 +65,8 @@ function createWindow() {
 
 // ---------- Garde à la fermeture : enregistrer / ne pas enregistrer / annuler ----------
 let doc = { dirty: false, name: '' }, forceClose = false, asking = false;
+// mode clair / sombre choisi dans les paramètres : menus et boîtes de dialogue natives assortis
+ipcMain.on('theme:mode', (_e, m) => { nativeTheme.themeSource = m === 'light' || m === 'dark' ? m : 'system'; });
 ipcMain.on('app:dirty', (_e, s) => { doc = s || doc; });
 ipcMain.on('app:quit-now', () => { forceClose = true; if (win && !win.isDestroyed()) win.close(); });
 async function confirmClose(e) {
@@ -102,7 +104,7 @@ function buildMenu() {
       { label: tr('Annuler|undo'), accelerator: 'CmdOrCtrl+Z', click: () => win.webContents.send('menu', 'undo') },
       { label: tr('Rétablir'), accelerator: 'CmdOrCtrl+Shift+Z', click: () => win.webContents.send('menu', 'redo') },
       { type: 'separator' }, { role: 'copy', label: tr('Copier') }, { role: 'paste', label: tr('Coller') },
-      { type: 'separator' }, { label: tr('Préférences…'), accelerator: 'CmdOrCtrl+,', click: () => win.webContents.send('menu', 'prefs') } ] },
+      { type: 'separator' }, { label: tr('Paramètres…'), accelerator: 'CmdOrCtrl+,', click: () => win.webContents.send('menu', 'prefs') } ] },
     { label: tr('Affichage'), submenu: [ { role: 'reload', label: tr('Recharger') }, { role: 'toggleDevTools', label: tr('Outils développeur') }, { role: 'togglefullscreen', label: tr('Plein écran') },
       { type: 'separator' },
       // noms des langues dans leur propre langue : ils ne se traduisent pas

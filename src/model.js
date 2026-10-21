@@ -13,7 +13,7 @@ function newProject() {
       { id: 'c1', name: I18N.t('Éclairage 1'), cal: '10A', section: '1,5', tableau: 'TD' },
       { id: 'c2', name: I18N.t('Prises'), cal: '20A', section: '2,5', tableau: 'TD' }
     ],
-    levels: [newLevel(I18N.t('RDC'), 0)] };
+    levels: [newLevel(I18N.t('Niveau {0}', 0), 0)] };
 }
 function migrate(p) {
   p.settings = Object.assign({ grid: 10, symbol: 2 }, p.settings || {});

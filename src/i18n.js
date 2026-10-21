@@ -84,7 +84,7 @@ const EN = {
 
   // ---------- éditeur ----------
   'Espace {0}': 'Space {0}',
-  'Étage {0}': 'Floor {0}',
+  'Niveau {0}': 'Level {0}',
   'Circuit {0}': 'Circuit {0}',
   'Commence la gaine sur un appareil.': 'Start the conduit on a device.',
   'Importe d\'abord un fond de plan.': 'Import a background plan first.',
@@ -155,14 +155,22 @@ const EN = {
   'Éditer (Tab)': 'Edit (Tab)',
   'Ajouter les murs': 'Add walls',
   'Murs': 'Walls',
-  // ---------- préférences ----------
-  'Préférences': 'Preferences',
-  'Préférences…': 'Preferences…',
-  'Préférences (Ctrl+,)': 'Preferences (Ctrl+,)',
+  // ---------- paramètres de l'application ----------
+  'Apparence': 'Appearance',
+  'Thème': 'Theme',
+  'Nordique': 'Nordic',
+  'Mode clair / sombre': 'Light / dark mode',
+  'Comme le système': 'Same as system',
+  'Clair': 'Light',
+  'Sombre': 'Dark',
+  'Symboles et textes': 'Symbols and texts',
+  'Paramètres': 'Settings',
+  'Paramètres…': 'Settings…',
+  'Paramètres (Ctrl+,)': 'Settings (Ctrl+,)',
   'Enregistrées pour tous les projets ; ↺ remet la valeur d\'usine.': 'Saved for all projects; ↺ restores the factory value.',
   'Valeur d\'usine': 'Factory value',
   'Tout remettre aux valeurs d\'usine': 'Reset all to factory defaults',
-  'Remettre toutes les préférences aux valeurs d\'usine ?': 'Reset all preferences to factory defaults?',
+  'Remettre tous les paramètres aux valeurs d\'usine ?': 'Reset all settings to factory defaults?',
   'Tout remettre': 'Reset all',
   'Fermer': 'Close',
   'Couleurs de l\'interface': 'Interface colours',
@@ -171,7 +179,6 @@ const EN = {
   'Couleurs du plan': 'Plan colours',
   'Fond du plan': 'Plan background',
   'Espaces (remplissage par défaut)': 'Spaces (default fill)',
-  'Symboles des appareils': 'Device symbols',
   'Grille : lignes des mètres': 'Grid: metre lines',
   'Axe X': 'X axis',
   'Axe Y': 'Y axis',
@@ -264,7 +271,6 @@ const EN = {
   'Dernier travail non enregistré récupéré.': 'Last unsaved work recovered.',
 
   // ---------- données par défaut, catalogue ----------
-  'RDC': 'Ground floor',
   'Éclairage 1': 'Lighting 1',
   'Prises': 'Sockets',
   'Prise': 'Socket',

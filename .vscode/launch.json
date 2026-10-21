@@ -1,0 +1,33 @@
+{
+  // F5 « ElecPlan (debug) » : lance l'app depuis les sources, avec points d'arrêt
+  // dans le processus principal (main.js) et dans la fenêtre (src/*.js).
+  // --no-sandbox : Ubuntu 24.04+ bloque le sandbox de l'Electron de node_modules (le paquet .deb, lui, le configure).
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Main process",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
+      "args": [".", "--no-sandbox", "--remote-debugging-port=9223"],
+      "env": { "ELECTRON_RUN_AS_NODE": null },
+      "outputCapture": "std"
+    },
+    {
+      "name": "Window (renderer)",
+      "type": "chrome",
+      "request": "attach",
+      "port": 9223,
+      "webRoot": "${workspaceFolder}/src",
+      "timeout": 30000
+    }
+  ],
+  "compounds": [
+    {
+      "name": "ElecPlan (debug)",
+      "configurations": ["Main process", "Window (renderer)"],
+      "stopAll": true
+    }
+  ]
+}

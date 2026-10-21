@@ -1,0 +1,29 @@
+<!doctype html>
+<!-- Pandoc template of the manual: cover and contents come from the front matter of manual.<lang>.md -->
+<html lang="$lang$">
+<head>
+<meta charset="utf-8">
+<title>$title$</title>
+<link rel="stylesheet" href="manual.css">
+</head>
+<body>
+<section class="cover">
+  <div class="cv-top">
+    <div class="kicker">$kicker$</div>
+    <div class="cv-title">Elec<span>Plan</span></div>
+    <p class="cv-sub">$subtitle$</p>
+  </div>
+  <img class="cv-img" src="$cover$" alt="">
+  <div class="cv-foot">
+$for(facts)$
+    <div><b>$facts.k$</b><br>$facts.v$</div>
+$endfor$
+  </div>
+</section>
+<section class="toc">
+  <div class="kicker">$toc-title$</div>
+  $table-of-contents$
+</section>
+$body$
+</body>
+</html>
